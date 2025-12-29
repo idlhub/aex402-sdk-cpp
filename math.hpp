@@ -107,11 +107,17 @@ inline uint64_t isqrt128(__uint128_t n) {
  * @return Invariant D, or nullopt if failed to converge
  */
 inline std::optional<uint64_t> calc_d(uint64_t x, uint64_t y, uint64_t amp) {
+    // Guard against division by zero
+    if (x == 0 || y == 0) return 0;
+
     uint64_t s = x + y;
     if (s == 0) return 0;
 
     uint64_t d = s;
     uint64_t ann = amp * 4;  // A * n^n where n=2
+
+    // Guard against zero amp
+    if (ann == 0) return std::nullopt;
 
     for (int i = 0; i < NEWTON_ITERATIONS; i++) {
         // d_p = D^3 / (4 * x * y)
@@ -161,7 +167,13 @@ inline std::optional<uint64_t> calc_d(uint64_t x, uint64_t y, uint64_t amp) {
  * @return New balance of output token, or nullopt if failed
  */
 inline std::optional<uint64_t> calc_y(uint64_t x_new, uint64_t d, uint64_t amp) {
+    // Guard against division by zero
+    if (x_new == 0) return std::nullopt;
+
     uint64_t ann = amp * 4;
+
+    // Guard against zero amp
+    if (ann == 0) return std::nullopt;
 
     // c = D^3 / (4 * x_new * Ann)
     __uint128_t c = mul128(d, d) / (2 * x_new);
